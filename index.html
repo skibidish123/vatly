@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Quiz – Sơ lược về sự phát triển của Vật lí học</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07060f; --panel:rgba(255,255,255,.05); --line:rgba(255,255,255,.12);
+  --text:#ecebff; --mute:#9a97c4; --v:#8b5cf6; --c:#22d3ee; --p:#f472b6;
+  --ok:#34d399; --bad:#fb7185; color-scheme:dark;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.55;overflow-x:hidden;position:relative}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.55;z-index:0;pointer-events:none}
+.o1{width:380px;height:380px;background:var(--v);top:-120px;left:-100px}
+.o2{width:340px;height:340px;background:var(--c);bottom:-120px;right:-80px;opacity:.38}
+.o3{width:240px;height:240px;background:var(--p);top:45%;right:20%;opacity:.2}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:46px 46px;opacity:.22;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%);-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%)}
+main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:28px 18px 60px}
+.badge{display:inline-flex;gap:8px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c);
+  border:1px solid rgba(34,211,238,.4);background:rgba(34,211,238,.08);padding:6px 12px;border-radius:99px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.3}}
+h1{font-size:clamp(30px,7vw,52px);line-height:1.08;margin:18px 0 10px;letter-spacing:-.02em;
+  background:linear-gradient(100deg,#fff 10%,#c4b5fd 45%,var(--c) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mute);margin:0 0 22px;max-width:56ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 0 0 1px rgba(139,92,246,.15),0 20px 60px -20px rgba(139,92,246,.55)}
+.term{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--mute);margin:0 0 18px}
+.term b{color:var(--c);font-weight:500}
+.cur::after{content:"▍";color:var(--c);animation:pulse 1s steps(2) infinite;margin-left:2px}
+.bar{height:6px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:8px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--v),var(--c),var(--p));box-shadow:0 0 14px var(--v);transition:width .5s}
+.meta{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mute);margin-bottom:18px}
+.q{font-size:clamp(19px,4.4vw,25px);font-weight:700;line-height:1.3;margin:0 0 20px;min-height:2.6em}
+.opts{display:grid;gap:10px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);transition:border-color .2s,background .2s,box-shadow .2s}
+.opt:hover:not([disabled]){border-color:var(--v);background:rgba(139,92,246,.12);box-shadow:0 0 22px -6px var(--v)}
+.opt:focus-visible,.btn:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.opt .k{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:500 12px 'JetBrains Mono',monospace;background:rgba(255,255,255,.08);color:var(--mute)}
+.opt[disabled]{cursor:default}
+.opt.ok{border-color:var(--ok);background:rgba(52,211,153,.12);box-shadow:0 0 24px -6px var(--ok)}
+.opt.ok .k{background:var(--ok);color:#04130d}
+.opt.bad{border-color:var(--bad);background:rgba(251,113,133,.12)}
+.opt.bad .k{background:var(--bad);color:#1a0509}
+.opt.dim{opacity:.45}
+.exp{display:none;margin-top:16px;padding:14px 16px;border-radius:14px;border:1px dashed rgba(34,211,238,.5);background:rgba(34,211,238,.06);font-size:14.5px}
+.exp.show{display:block;animation:in .35s}
+.exp span{font-family:'JetBrains Mono',monospace;color:var(--c);font-size:12px;display:block;margin-bottom:4px}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.row{display:flex;justify-content:flex-end;margin-top:18px}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:12px 24px;border-radius:12px;font-weight:700;color:#fff;
+  background:linear-gradient(100deg,var(--v),#6366f1 50%,var(--c));box-shadow:0 8px 30px -8px var(--v);transition:transform .15s,filter .2s}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none}
+.score{font-size:clamp(64px,18vw,110px);font-weight:700;line-height:1;margin:6px 0;
+  background:linear-gradient(100deg,var(--v),var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+.rev{margin:18px 0 0;padding:0;list-style:none;display:grid;gap:8px;font-size:14px}
+.rev li{padding:10px 14px;border-radius:12px;border:1px solid var(--line);display:flex;gap:10px}
+.rev li.y{border-color:rgba(52,211,153,.5)} .rev li.n{border-color:rgba(251,113,133,.5)}
+.hide{display:none}
+.gem{position:fixed;z-index:5;right:16px;top:calc(env(safe-area-inset-top,0px) + 14px);display:flex;align-items:center;gap:8px;padding:8px 14px 8px 10px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.06);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 0 28px -8px #9b72cb;font-weight:500;font-size:15px;color:var(--text)}
+.gem svg{width:22px;height:22px;filter:drop-shadow(0 0 6px rgba(155,114,203,.8))}
+@media (max-width:560px){main{padding-top:68px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="gem" aria-label="Gemini">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285f4"/><stop offset=".55" stop-color="#9b72cb"/><stop offset="1" stop-color="#d96570"/></linearGradient></defs><path fill="url(#gg)" d="M12 0C12 6.6 17.4 12 24 12C17.4 12 12 17.4 12 24C12 17.4 6.6 12 0 12C6.6 12 12 6.6 12 0Z"/></svg>
+  <span>Gemini</span>
+</div>
+<main>
+  <span class="badge"><span class="dot"></span>AI Quiz Engine v2.0 · Vật lí 10 chuyên đề</span>
+  <h1>Sơ lược về sự phát triển của Vật lí học</h1>
+  <p class="sub">10 câu hỏi do AI tạo từ bài thuyết trình của Nhóm 1. Chọn đáp án, nhận giải thích ngay lập tức.</p>
+
+  <section class="card" id="start">
+    <p class="term"><b>&gt;</b> <span id="boot"></span></p>
+    <div class="row" style="justify-content:flex-start;margin:0"><button class="btn" id="go">Bắt đầu làm bài</button></div>
+  </section>
+
+  <section class="card hide" id="quiz" aria-live="polite">
+    <div class="bar"><i id="pb"></i></div>
+    <div class="meta"><span id="cnt"></span><span id="sc"></span></div>
+    <h2 class="q cur" id="q"></h2>
+    <div class="opts" id="opts"></div>
+    <div class="exp" id="exp"></div>
+    <div class="row"><button class="btn hide" id="next">Câu tiếp theo</button></div>
+  </section>
+
+  <section class="card hide" id="end">
+    <p class="term"><b>&gt;</b> Phân tích hoàn tất.</p>
+    <div class="score" id="fs"></div>
+    <p id="msg" style="font-size:18px;margin:0"></p>
+    <ul class="rev" id="rev"></ul>
+    <div class="row" style="justify-content:flex-start"><button class="btn" id="again">Làm lại</button></div>
+  </section>
+</main>
+<script>
+const Q=[
+{q:"Vật lí học hình thành từ nhu cầu nào của con người?",o:["Chế tạo vũ khí","Tìm hiểu và giải thích các hiện tượng tự nhiên","Buôn bán và trao đổi hàng hóa","Sáng tác nghệ thuật"],a:1,e:"Vật lí học hình thành từ nhu cầu tìm hiểu và giải thích các hiện tượng tự nhiên."},
+{q:"Ban đầu, con người nghiên cứu tự nhiên chủ yếu bằng cách nào?",o:["Làm thí nghiệm đo lường chính xác","Dùng máy tính mô phỏng","Quan sát và suy luận","Chế tạo máy móc"],a:2,e:"Giai đoạn đầu con người chủ yếu quan sát và suy luận; phương pháp thực nghiệm hình thành sau đó."},
+{q:"Aristotle cho rằng vật nào rơi nhanh hơn?",o:["Vật nhẹ rơi nhanh hơn","Vật nặng rơi nhanh hơn vật nhẹ","Hai vật luôn rơi như nhau","Vật nào to hơn thì rơi chậm hơn"],a:1,e:"Quan niệm của Aristotle chưa được kiểm chứng đầy đủ bằng thực nghiệm, về sau bị Galileo nghi ngờ."},
+{q:"Ai được xem là người khai sinh Vật lí thực nghiệm?",o:["Aristotle","Pythagoras","Galileo Galilei","James Watt"],a:2,e:"Galileo (1564–1642) tiên phong kết hợp thí nghiệm đo lường với toán học để kiểm chứng giả thuyết."},
+{q:"Kết quả thí nghiệm của Galileo cho thấy điều gì?",o:["Vật nặng luôn rơi nhanh hơn","Vật nhẹ luôn rơi nhanh hơn","Các vật khối lượng khác nhau rơi như nhau khi bỏ qua lực cản không khí","Vật chỉ rơi khi có lực cản không khí"],a:2,e:"Trong điều kiện lí tưởng, bỏ qua lực cản không khí, các vật có khối lượng khác nhau rơi như nhau."},
+{q:"Ý nghĩa của thí nghiệm Galileo KHÔNG bao gồm điều nào sau đây?",o:["Bác bỏ một quan niệm sai lầm tồn tại lâu đời","Khẳng định vai trò của thí nghiệm trong nghiên cứu Vật lí","Góp phần đặt nền móng cho Vật lí thực nghiệm","Chứng minh mọi vật đều đứng yên"],a:3,e:"Bài chỉ nêu ba ý nghĩa đầu; không có ý nào nói về việc mọi vật đứng yên."},
+{q:"Giai đoạn “Thực nghiệm” của Vật lí học kéo dài trong khoảng thời gian nào?",o:["585 TCN đến thế kỉ XVI","Từ thế kỉ XVII đến thế kỉ XIX","Từ cuối thế kỉ XIX đến nay","Chỉ trong thế kỉ XX"],a:1,e:"Ba giai đoạn: quan sát – quy nạp; thực nghiệm (XVII–XIX); lí thuyết và thực nghiệm (cuối XIX đến nay)."},
+{q:"Năm 1687, Newton công bố tác phẩm nào?",o:["Các nguyên lí Toán học của Triết học tự nhiên","Thuyết tương đối","Hình học phẳng","Hệ thống hóa Triết học Hy Lạp"],a:0,e:"Cuốn sách của Newton năm 1687 đặt nền tảng cho cơ học cổ điển."},
+{q:"Faraday năm 1831 tìm ra hiện tượng nào, mở đường cho động cơ điện?",o:["Hiện tượng quang điện","Hiện tượng cảm ứng điện từ","Hiện tượng nhiễu xạ","Hiện tượng siêu dẫn"],a:1,e:"Cảm ứng điện từ mở đường sáng chế động cơ điện và mở đầu cách mạng công nghiệp lần thứ hai."},
+{q:"James Watt cải tiến máy hơi nước với “bình ngưng tụ riêng” giúp điều gì?",o:["Tiết kiệm 50–75% than","Tăng gấp đôi vận tốc ánh sáng","Giảm một nửa khối lượng máy","Chạy bằng điện"],a:0,e:"Ngoài ra còn có cơ cấu quay, tác động kép (tăng gấp đôi công suất) và bộ điều tốc ly tâm."}
+];
+const $=id=>document.getElementById(id);
+let i=0,score=0,log=[],busy=false;
+
+function type(el,txt,done){
+  el.textContent="";el.classList.add("cur");let n=0;
+  const t=setInterval(()=>{el.textContent=txt.slice(0,++n);if(n>=txt.length){clearInterval(t);el.classList.remove("cur");done&&done()}},14);
+}
+const bootTxt="Đã phân tích file PDF… trích xuất 9 slide… tạo 10 câu hỏi trắc nghiệm. Sẵn sàng.";
+function boot(){type($("boot"),bootTxt)}
+
+function show(){
+  const d=Q[i];
+  $("pb").style.width=(i/Q.length*100)+"%";
+  $("cnt").textContent="Câu "+(i+1)+"/"+Q.length;
+  $("sc").textContent="Điểm: "+score;
+  $("exp").className="exp";$("next").classList.add("hide");
+  $("opts").innerHTML="";busy=true;
+  type($("q"),d.q,()=>{
+    d.o.forEach((t,k)=>{
+      const b=document.createElement("button");b.className="opt";
+      b.innerHTML='<span class="k">'+"ABCD"[k]+'</span><span></span>';
+      b.lastChild.textContent=t;
+      b.onclick=()=>pick(k);
+      $("opts").appendChild(b);
+    });busy=false;
+  });
+}
+function pick(k){
+  if(busy)return;busy=true;
+  const d=Q[i],bs=[...$("opts").children];
+  bs.forEach((b,j)=>{b.disabled=true;if(j===d.a)b.classList.add("ok");else if(j===k)b.classList.add("bad");else b.classList.add("dim")});
+  const right=k===d.a;if(right)score++;
+  log.push({q:d.q,right,a:d.o[d.a]});
+  $("sc").textContent="Điểm: "+score;
+  $("exp").innerHTML='<span>'+(right?"ĐÚNG":"CHƯA ĐÚNG")+' · AI giải thích</span>'+d.e;
+  $("exp").classList.add("show");
+  $("next").textContent=i===Q.length-1?"Xem kết quả":"Câu tiếp theo";
+  $("next").classList.remove("hide");
+}
+function finish(){
+  $("quiz").classList.add("hide");$("end").classList.remove("hide");
+  $("fs").textContent=score+"/"+Q.length;
+  $("msg").textContent=score>=9?"Xuất sắc! Bạn nắm chắc bài này.":score>=7?"Tốt lắm! Ôn thêm vài chỗ là hoàn hảo.":score>=5?"Khá ổn. Xem lại các câu sai bên dưới nhé.":"Cần ôn lại bài. Đọc lại slide rồi thử lần nữa.";
+  $("rev").innerHTML="";
+  log.forEach((l,n)=>{const li=document.createElement("li");li.className=l.right?"y":"n";
+    li.textContent=(l.right?"✓ ":"✗ ")+"Câu "+(n+1)+": "+(l.right?l.q:l.q+" → Đáp án: "+l.a);$("rev").appendChild(li)});
+}
+$("go").onclick=()=>{$("start").classList.add("hide");$("quiz").classList.remove("hide");show()};
+$("next").onclick=()=>{if(i===Q.length-1)finish();else{i++;show()}};
+$("again").onclick=()=>{i=0;score=0;log=[];$("end").classList.add("hide");$("quiz").classList.remove("hide");show()};
+boot();
+</script>
+</body>
+</html>
